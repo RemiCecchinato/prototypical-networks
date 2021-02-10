@@ -99,8 +99,10 @@ def main(opt):
             json.dump(meter_vals, f)
             f.write('\n')
 
+        tensorboard.add_scalar("Value MAP", meter_vals['val']['map'], state['epoch'])
         tensorboard.add_scalar("Value Loss", meter_vals['val']['loss'], state['epoch'])
         tensorboard.add_scalar("Value Accuracy", meter_vals['val']['acc'], state['epoch'])
+        tensorboard.add_scalar("Train MAP", meter_vals['train']['map'], state['epoch'])
         tensorboard.add_scalar("Train Loss", meter_vals['train']['loss'], state['epoch'])
         tensorboard.add_scalar("Train Accuracy", meter_vals['train']['acc'], state['epoch'])
         tensorboard.add_scalar("Best Loss", hook_state['best_loss'], state['epoch'])

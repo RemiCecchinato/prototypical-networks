@@ -52,11 +52,23 @@ class Protonet(nn.Module):
         loss_val = -log_p_y.gather(2, target_inds).squeeze().view(-1).mean()
 
         _, y_hat = log_p_y.max(2)
-        acc_val = torch.eq(y_hat, target_inds.squeeze()).float().mean()
+        _, sorted_indicies = log_p_y.sort(dim=2, descending=True)
+
+        squeezed_tardet_inds = target_inds.squeeze()
+
+        acc_val = torch.eq(y_hat, squeezed_tardet_inds).float().mean()
+
+        MAP = torch.tensor([0], dtype=torch.float)
+        count = torch.zeros(squeezed_tardet_inds.shape, dtype=torch.long)
+        for i in range(sorted_indicies.shape[2]):
+            z = torch.eq(sorted_indicies[:,:,i].squeeze(), squeezed_tardet_inds)
+            count += z
+            MAP += (z * count).float().mean() / (i + 1)
 
         return loss_val, {
             'loss': loss_val.item(),
-            'acc': acc_val.item()
+            'acc': acc_val.item(),
+            'map': MAP.item()
         }
 
 @register_model('protonet_conv')
